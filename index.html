@@ -137,10 +137,12 @@
 
     #error {
       min-height: 22px;
-      margin: 12px 0 8px;
+      margin: 10px 0 6px;
       font-size: 14px;
       font-weight: 600;
       color: #ffe66d;
+      text-align: center;
+      line-height: 1.4;
     }
 
     .weather-card {
@@ -215,19 +217,24 @@
 
     .forecast {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 8px;
-      overflow-x: auto;
       padding: 6px 0 0;
       margin-top: 10px;
     }
 
     .forecast-item {
-      min-width: 84px;
+      width: 76px;
       background: rgba(255,255,255,0.16);
       border-radius: 12px;
       padding: 8px 6px;
       text-align: center;
       flex-shrink: 0;
+    }
+
+    .forecast::-webkit-scrollbar {
+      display: none;
     }
 
     .forecast-item img {
@@ -293,7 +300,7 @@
 
     <div class="weather-card">
       <h3 id="city">Loading...</h3>
-      <div id="last-updated"></div>
+      <div id="last-updated">Live • Waiting for weather</div>
       <div class="main-weather">
         <img id="weather-icon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="Weather icon">
         <div>
@@ -305,19 +312,19 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">💧 Humidity</div>
-          <div id="humidity" class="stat-value">--</div>
+          <div id="humidity" class="stat-value">0%</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">🌬 Wind</div>
-          <div id="wind" class="stat-value">--</div>
+          <div id="wind" class="stat-value">0 km/h</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">🌡 Feels like</div>
-          <div id="feels" class="stat-value">--</div>
+          <div id="feels" class="stat-value">0°C</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">🧭 Pressure</div>
-          <div id="pressure" class="stat-value">--</div>
+          <div id="pressure" class="stat-value">0 hPa</div>
         </div>
       </div>
 
@@ -397,7 +404,7 @@
         renderWeather(data);
         loadForecast(city);
       } catch (error) {
-        setError("Weather data could not be loaded. Try another city.");
+        setError("Invalid City Name. Please try again.");
       }
     }
 
@@ -425,8 +432,8 @@
       document.getElementById("pressure").textContent = `${data.main.pressure} hPa`;
       document.getElementById("weather-icon").src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
-      const localTime = new Date((data.dt + data.timezone) * 1000);
-      document.getElementById("last-updated").textContent = `Updated ${localTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+      const now = new Date();
+      document.getElementById("last-updated").textContent = `Live • Updated ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
       cityInput.value = data.name;
     }
 
@@ -469,11 +476,16 @@
         },
         () => {
           setError("Location access was denied. Please search for a city manually.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     }
 
-    loadWeather("London");
+    loadWeather("");
   </script>
 </body>
 </html>
